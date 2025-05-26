@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CinematicDeathCounter } from './CinematicDeathCounter';
 import { NarrativeIntro } from './NarrativeIntro';
 import { CumulativeCounter } from './CumulativeCounter';
@@ -140,7 +139,6 @@ export const CinematicController: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [globalTime, setGlobalTime] = useState(0);
   const [showCumulative, setShowCumulative] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -191,11 +189,6 @@ export const CinematicController: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.1)_0%,transparent_70%)]"></div>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:100px_100px] animate-pulse"></div>
       </div>
-
-      {/* Ambient Audio */}
-      <audio ref={audioRef} loop className="hidden">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBDuI1/LMeSUGJnTG8N+PQgkTXrPp7KhUFAlHnt/yv2AcBzmI2e2MeSYGJnnG7+SOMwoBLIDQ+ddnLgMQQP/8Bvv8NAPE3v37/OwBDe/9/fnz9AYRhV3l6mte8fTw5/PyDAYi7vE3YqG/s3E=" type="audio/wav" />
-      </audio>
 
       {/* Cumulative Counter */}
       {showCumulative && (
