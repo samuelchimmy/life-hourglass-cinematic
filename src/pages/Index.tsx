@@ -25,7 +25,6 @@ const Index = () => {
         onCanPlay={handleAudioCanPlay}
         preload="auto"
       >
-        <source src="https://github.com/samuelchimmy/life-hourglass-cinematic/raw/main/public/public%3Aambient-space.mp3" type="audio/mpeg" />
         <source src="https://raw.githubusercontent.com/samuelchimmy/life-hourglass-cinematic/main/public/public%3Aambient-space.mp3" type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
