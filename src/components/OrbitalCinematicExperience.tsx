@@ -235,11 +235,6 @@ export const OrbitalCinematicExperience: React.FC = () => {
         ))}
       </div>
 
-      {/* Ambient Audio */}
-      <audio autoPlay loop className="hidden">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBDuI1/LMeSUGJnTG8N+PQgkTXrPp7KhUFAlHnt/yv2AcBzmI2e2MeSYGJnnG7+SOMwoBLIDQ+ddnLgMQQP/8Bvv8NAPE3v37/OwBDe/9/fnz9AYRhV3l6mte8fTw5/PyDAYi7vE3YqG/s3E=" type="audio/wav" />
-      </audio>
-
       {/* Main Content */}
       <div className="relative z-10 w-full h-screen">
         {phase === 'intro' && <NarrativeIntro />}
