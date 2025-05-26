@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { OrbitalDeathItem } from './OrbitalDeathItem';
 import { CentralCounter } from './CentralCounter';
@@ -216,7 +215,7 @@ export const OrbitalCinematicExperience: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(239,68,68,0.06)_0%,transparent_50%)]"></div>
       </div>
 
-      {/* Constellation Grid Lines */}
+      {/* Constellation Grid Lines - smooth rotation */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(4)].map((_, i) => (
           <div
@@ -228,8 +227,9 @@ export const OrbitalCinematicExperience: React.FC = () => {
               width: `${440 + i * 160}px`,
               height: `${440 + i * 160}px`,
               transform: 'translate(-50%, -50%)',
-              animationDuration: `${25 + i * 8}s`,
-              animationDirection: 'reverse'
+              animationDuration: `${35 + i * 10}s`,
+              animationDirection: 'reverse',
+              animationTimingFunction: 'linear'
             }}
           />
         ))}

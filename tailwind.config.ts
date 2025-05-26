@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -119,6 +118,14 @@ export default {
 					'100%': {
 						backgroundPosition: '200% 0'
 					}
+				},
+				'fadeInOut': {
+					'0%, 100%': {
+						opacity: '0'
+					},
+					'50%': {
+						opacity: '0.6'
+					}
 				}
 			},
 			animation: {
@@ -127,7 +134,8 @@ export default {
 				'fade-in': 'fade-in 0.6s ease-out',
 				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
-				'shimmer': 'shimmer 2s linear infinite'
+				'shimmer': 'shimmer 2s linear infinite',
+				'fadeInOut': 'fadeInOut 6s ease-in-out infinite'
 			}
 		}
 	},

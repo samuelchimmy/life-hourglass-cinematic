@@ -28,6 +28,6 @@ export const Header = () => {
           </div>
         </nav>
       </div>
-    </header>
+    </div>
   );
 };
