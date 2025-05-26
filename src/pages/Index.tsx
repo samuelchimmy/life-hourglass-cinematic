@@ -60,6 +60,7 @@ const Index = () => {
       {/* Background Audio */}
       <audio 
         ref={audioRef}
+        autoPlay
         loop 
         className="hidden"
         onError={handleAudioError}
