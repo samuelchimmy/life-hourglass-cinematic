@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { OrbitalDeathItem } from './OrbitalDeathItem';
 import { CentralCounter } from './CentralCounter';
 import { NarrativeIntro } from './NarrativeIntro';
+import { StarfieldBackground } from './StarfieldBackground';
 
 const deathData = [
   { 
@@ -139,6 +140,8 @@ export const OrbitalCinematicExperience: React.FC = () => {
   const [phase, setPhase] = useState<'intro' | 'orbital'>('intro');
   const [globalTime, setGlobalTime] = useState(0);
   const [visibleItems, setVisibleItems] = useState(0);
+  const [lastDeathTime, setLastDeathTime] = useState(0);
+  const [triggerStarDisappearance, setTriggerStarDisappearance] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -172,11 +175,22 @@ export const OrbitalCinematicExperience: React.FC = () => {
     }
   }, [phase]);
 
+  // Trigger star disappearance based on death rate
+  useEffect(() => {
+    const totalDeathsPerSecond = deathData.reduce((sum, data) => sum + data.deathsPerSecond, 0);
+    const currentTotalDeaths = Math.floor(globalTime * totalDeathsPerSecond);
+    
+    if (currentTotalDeaths > lastDeathTime) {
+      setTriggerStarDisappearance(prev => !prev);
+      setLastDeathTime(currentTotalDeaths);
+    }
+  }, [globalTime, lastDeathTime]);
+
   const totalDeathsPerSecond = deathData.reduce((sum, data) => sum + data.deathsPerSecond, 0);
 
   const getOrbitRadius = (index: number) => {
-    const baseRadius = 200;
-    const radiusIncrement = 60;
+    const baseRadius = 220;
+    const radiusIncrement = 80;
     return baseRadius + (Math.floor(index / 4) * radiusIncrement);
   };
 
@@ -185,19 +199,21 @@ export const OrbitalCinematicExperience: React.FC = () => {
     const ringIndex = Math.floor(index / itemsPerRing);
     const positionInRing = index % itemsPerRing;
     const angleStep = 360 / itemsPerRing;
-    const ringOffset = ringIndex * 22.5; // Offset each ring slightly
+    const ringOffset = ringIndex * 22.5;
     return (positionInRing * angleStep + ringOffset) % 360;
   };
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Starfield Background */}
+      <StarfieldBackground onDeathTrigger={triggerStarDisappearance} />
+
       {/* Enhanced Cinematic Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black opacity-95"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.15)_0%,transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(139,92,246,0.1)_0%,transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(239,68,68,0.1)_0%,transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.005)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.005)_1px,transparent_1px)] bg-[size:100px_100px] animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black opacity-98"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(139,92,246,0.06)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(239,68,68,0.06)_0%,transparent_50%)]"></div>
       </div>
 
       {/* Constellation Grid Lines */}
@@ -205,19 +221,24 @@ export const OrbitalCinematicExperience: React.FC = () => {
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="absolute border border-gray-800/30 rounded-full animate-spin"
+            className="absolute border border-gray-800/20 rounded-full animate-spin"
             style={{
               left: '50%',
               top: '50%',
-              width: `${400 + i * 120}px`,
-              height: `${400 + i * 120}px`,
+              width: `${440 + i * 160}px`,
+              height: `${440 + i * 160}px`,
               transform: 'translate(-50%, -50%)',
-              animationDuration: `${20 + i * 5}s`,
+              animationDuration: `${25 + i * 8}s`,
               animationDirection: 'reverse'
             }}
           />
         ))}
       </div>
+
+      {/* Ambient Audio */}
+      <audio autoPlay loop className="hidden">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBDuI1/LMeSUGJnTG8N+PQgkTXrPp7KhUFAlHnt/yv2AcBzmI2e2MeSYGJnnG7+SOMwoBLIDQ+ddnLgMQQP/8Bvv8NAPE3v37/OwBDe/9/fnz9AYRhV3l6mte8fTw5/PyDAYi7vE3YqG/s3E=" type="audio/wav" />
+      </audio>
 
       {/* Main Content */}
       <div className="relative z-10 w-full h-screen">

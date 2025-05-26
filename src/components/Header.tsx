@@ -9,7 +9,7 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full animate-pulse"></div>
             <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-              DDL
+              Daily Deaths
             </span>
           </div>
           
@@ -21,7 +21,7 @@ export const Header = () => {
 
           <div className="flex items-center space-x-4">
             <div className="hidden sm:block text-sm text-gray-400">
-              Global Health Observatory
+              Global Death Observatory
             </div>
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
             <span className="text-xs text-green-400">LIVE</span>

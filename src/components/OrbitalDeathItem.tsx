@@ -59,7 +59,6 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
       style={{
         left: `calc(50% + ${x}px)`,
         top: `calc(50% + ${y}px)`,
-        transform: `translate(-50%, -50%) scale(${isHovered ? 1.25 : 1})`,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -69,50 +68,71 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
       
       {/* Main Circle */}
       <div className={`
-        relative w-24 h-24 rounded-full bg-gradient-to-br from-gray-900/90 to-gray-800/90 
-        border-2 border-gradient-to-r ${color} backdrop-blur-md shadow-2xl
+        relative w-32 h-32 rounded-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 
+        border-2 backdrop-blur-md shadow-2xl
         flex flex-col items-center justify-center text-center
-        transition-all duration-300
-      `}>
-        {/* Glowing Edge */}
-        <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${color} opacity-30 animate-pulse`}></div>
+        transition-all duration-300 animate-pulse
+      `}
+      style={{
+        borderImage: `linear-gradient(45deg, ${color.split(' ')[1]}, ${color.split(' ')[3]}) 1`,
+        borderColor: 'transparent'
+      }}>
         
-        {/* Icon */}
-        <div className="relative z-10 text-2xl mb-1">{icon}</div>
+        {/* Pulse Ring Effect */}
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${color} opacity-30 animate-ping`}></div>
         
-        {/* Counter */}
-        <div className={`relative z-10 text-xs font-mono font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent`}>
-          {currentCount.toLocaleString()}
+        {/* Content */}
+        <div className="relative z-10 p-2">
+          {/* Icon */}
+          <div className="text-xl mb-1">{icon}</div>
+          
+          {/* Cause Name */}
+          <div className="text-xs font-semibold text-white mb-1 leading-tight">
+            {cause.length > 20 ? `${cause.substring(0, 18)}...` : cause}
+          </div>
+          
+          {/* Real-time Counter */}
+          <div className={`text-sm font-mono font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent animate-pulse`}>
+            {currentCount.toLocaleString()}
+          </div>
+          
+          {/* Rate indicator */}
+          <div className="text-xs text-gray-400 mt-1">
+            +{deathsPerSecond.toFixed(3)}/s
+          </div>
         </div>
       </div>
 
-      {/* Hover Information */}
+      {/* Enhanced Hover Information */}
       {isHovered && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 bg-black/90 backdrop-blur-md rounded-xl p-4 min-w-48 animate-fade-in z-50">
-          <div className="text-white text-sm font-semibold mb-1">{cause}</div>
-          <div className={`text-xs bg-gradient-to-r ${color} bg-clip-text text-transparent font-mono mb-2`}>
-            {currentCount.toLocaleString()} deaths
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 bg-black/95 backdrop-blur-md rounded-xl p-4 min-w-56 animate-fade-in z-50 border border-gray-700/50">
+          <div className="text-white text-base font-semibold mb-2">{cause}</div>
+          <div className={`text-sm bg-gradient-to-r ${color} bg-clip-text text-transparent font-mono mb-2`}>
+            {currentCount.toLocaleString()} deaths since you started
           </div>
-          <div className="text-gray-400 text-xs italic">{description}</div>
+          <div className="text-gray-300 text-sm italic mb-2">{description}</div>
+          <div className="text-gray-400 text-xs">
+            Rate: ~{deathsPerSecond.toFixed(3)} deaths per second
+          </div>
           <div className="text-gray-500 text-xs mt-1">
-            ~{deathsPerSecond.toFixed(3)} per second
+            Daily average: {dailyDeaths.toLocaleString()} deaths
           </div>
         </div>
       )}
 
-      {/* Floating Particles for Active Items */}
-      {globalTime > 0 && (
+      {/* Floating Soul Particles */}
+      {globalTime > 0 && currentCount > 0 && (
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(3)].map((_, i) => (
+          {[...Array(Math.min(3, Math.floor(currentCount / 10)))].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 rounded-full animate-ping"
+              className="absolute w-1 h-1 rounded-full animate-ping opacity-60"
               style={{
-                backgroundColor: color.includes('red') ? '#ef4444' : '#06b6d4',
+                backgroundColor: color.includes('red') ? '#ef4444' : color.includes('blue') ? '#3b82f6' : '#06b6d4',
                 left: `${30 + i * 20}%`,
                 top: `${20 + (i % 2) * 60}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: '3s'
+                animationDelay: `${i * 0.8}s`,
+                animationDuration: '4s'
               }}
             />
           ))}
