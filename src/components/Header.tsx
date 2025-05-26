@@ -12,12 +12,6 @@ export const Header = () => {
               Daily Deaths
             </span>
           </div>
-          
-          <div className="hidden md:flex items-center space-x-6 text-gray-300">
-            <button className="hover:text-cyan-400 transition-colors duration-300">About</button>
-            <button className="hover:text-cyan-400 transition-colors duration-300">Sources</button>
-            <button className="hover:text-cyan-400 transition-colors duration-300">Methodology</button>
-          </div>
 
           <div className="flex items-center space-x-4">
             <div className="hidden sm:block text-sm text-gray-400">
