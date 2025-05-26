@@ -4,14 +4,10 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { ParticleEffect } from '../components/ParticleEffect';
 import { OrbitalCinematicExperience } from '../components/OrbitalCinematicExperience';
-import { AmbientAudio } from '../components/AmbientAudio';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Ambient Audio */}
-      <AmbientAudio />
-      
       {/* Particle Background */}
       <ParticleEffect />
       
