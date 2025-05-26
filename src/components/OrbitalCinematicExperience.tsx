@@ -205,14 +205,15 @@ export const OrbitalCinematicExperience: React.FC = () => {
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="absolute border border-gray-800/30 rounded-full"
+            className="absolute border border-gray-800/30 rounded-full animate-spin"
             style={{
               left: '50%',
               top: '50%',
               width: `${400 + i * 120}px`,
               height: `${400 + i * 120}px`,
               transform: 'translate(-50%, -50%)',
-              animation: `spin ${20 + i * 5}s linear infinite reverse`
+              animationDuration: `${20 + i * 5}s`,
+              animationDirection: 'reverse'
             }}
           />
         ))}
@@ -249,13 +250,6 @@ export const OrbitalCinematicExperience: React.FC = () => {
           </>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };
