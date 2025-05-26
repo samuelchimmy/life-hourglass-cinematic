@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface Star {
   id: number;
@@ -22,6 +22,12 @@ export const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ onDeat
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
   const nextStarId = useRef(0);
+  const starsRef = useRef<Star[]>([]);
+
+  // Update the ref whenever stars state changes
+  useEffect(() => {
+    starsRef.current = stars;
+  }, [stars]);
 
   // Initialize with fewer stars that will be dynamic
   useEffect(() => {
@@ -35,7 +41,7 @@ export const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ onDeat
         opacity: Math.random() * 0.6 + 0.2,
         isDisappearing: false,
         brightness: 1,
-        lifespan: Math.random() * 300 + 100, // 100-400 frames
+        lifespan: Math.random() * 300 + 100,
         age: 0
       });
     }
@@ -44,24 +50,79 @@ export const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ onDeat
 
   // Trigger star disappearance when death occurs
   useEffect(() => {
-    if (onDeathTrigger && stars.length > 0) {
-      setStars(prevStars => {
-        const availableStars = prevStars.filter(star => !star.isDisappearing);
-        if (availableStars.length === 0) return prevStars;
-        
-        const randomIndex = Math.floor(Math.random() * availableStars.length);
-        const targetStar = availableStars[randomIndex];
-        
-        return prevStars.map(star => 
+    if (onDeathTrigger && starsRef.current.length > 0) {
+      const availableStars = starsRef.current.filter(star => !star.isDisappearing);
+      if (availableStars.length === 0) return;
+      
+      const randomIndex = Math.floor(Math.random() * availableStars.length);
+      const targetStar = availableStars[randomIndex];
+      
+      setStars(prevStars => 
+        prevStars.map(star => 
           star.id === targetStar.id 
             ? { ...star, isDisappearing: true, brightness: 4 }
             : star
-        );
+        )
+      );
+    }
+  }, [onDeathTrigger]);
+
+  const updateStars = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let updatedStars = starsRef.current.map(star => {
+      star.age++;
+      
+      if (star.isDisappearing) {
+        const newOpacity = star.opacity - 0.03;
+        const newBrightness = Math.max(star.brightness - 0.15, 1);
+        
+        if (newOpacity <= 0) {
+          return null;
+        }
+        
+        return { 
+          ...star, 
+          opacity: newOpacity,
+          brightness: newBrightness
+        };
+      }
+      
+      if (star.age >= star.lifespan) {
+        return null;
+      }
+      
+      return star;
+    }).filter(star => star !== null) as Star[];
+
+    // Add new stars randomly to maintain population
+    while (updatedStars.length < 300 && Math.random() < 0.02) {
+      updatedStars.push({
+        id: nextStarId.current++,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.2 + 0.3,
+        opacity: 0,
+        isDisappearing: false,
+        brightness: 1,
+        lifespan: Math.random() * 400 + 200,
+        age: 0
       });
     }
-  }, [onDeathTrigger, stars.length]);
 
-  // Canvas rendering with dynamic star management
+    // Fade in new stars
+    updatedStars = updatedStars.map(star => {
+      if (star.opacity < 0.6 && !star.isDisappearing) {
+        return { ...star, opacity: Math.min(star.opacity + 0.005, Math.random() * 0.6 + 0.2) };
+      }
+      return star;
+    });
+
+    setStars(updatedStars);
+  }, []);
+
+  // Canvas rendering with animation loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -79,61 +140,11 @@ export const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ onDeat
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      setStars(prevStars => {
-        let updatedStars = prevStars.map(star => {
-          star.age++;
-          
-          if (star.isDisappearing) {
-            const newOpacity = star.opacity - 0.03;
-            const newBrightness = Math.max(star.brightness - 0.15, 1);
-            
-            if (newOpacity <= 0) {
-              return null; // Mark for removal
-            }
-            
-            return { 
-              ...star, 
-              opacity: newOpacity,
-              brightness: newBrightness
-            };
-          }
-          
-          // Natural star lifecycle
-          if (star.age >= star.lifespan) {
-            return null; // Mark for removal
-          }
-          
-          return star;
-        }).filter(star => star !== null) as Star[];
-
-        // Add new stars randomly to maintain population
-        while (updatedStars.length < 300 && Math.random() < 0.02) {
-          updatedStars.push({
-            id: nextStarId.current++,
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.2 + 0.3,
-            opacity: 0,
-            isDisappearing: false,
-            brightness: 1,
-            lifespan: Math.random() * 400 + 200,
-            age: 0
-          });
-        }
-
-        // Fade in new stars
-        updatedStars = updatedStars.map(star => {
-          if (star.opacity < 0.6 && !star.isDisappearing) {
-            return { ...star, opacity: Math.min(star.opacity + 0.005, Math.random() * 0.6 + 0.2) };
-          }
-          return star;
-        });
-
-        return updatedStars;
-      });
+      // Update stars
+      updateStars();
 
       // Draw stars with enhanced glow effect
-      stars.forEach(star => {
+      starsRef.current.forEach(star => {
         ctx.save();
         ctx.globalAlpha = star.opacity;
         
@@ -166,7 +177,7 @@ export const StarfieldBackground: React.FC<StarfieldBackgroundProps> = ({ onDeat
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [stars]);
+  }, [updateStars]);
 
   return (
     <canvas
