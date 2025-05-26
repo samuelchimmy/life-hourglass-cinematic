@@ -8,6 +8,12 @@ import { OrbitalCinematicExperience } from '../components/OrbitalCinematicExperi
 const Index = () => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Background Audio */}
+      <audio autoPlay loop className="hidden">
+        <source src="https://github.com/samuelchimmy/life-hourglass-cinematic/raw/main/public/public%3Aambient-space.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+
       {/* Particle Background */}
       <ParticleEffect />
       
