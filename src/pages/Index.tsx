@@ -67,7 +67,7 @@ const Index = () => {
         onCanPlay={handleAudioCanPlay}
         preload="auto"
       >
-        <source src="https://dl.dropboxusercontent.com/scl/fi/f1mqnpch2vndmi2hzdjfs/public-ambient-space.mp3" type="audio/mpeg" />
+        <source src="https://djqkwgivgfudjcqhpxap.supabase.co/storage/v1/object/public/deathmp3/ambient-space.mp3" type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
 
