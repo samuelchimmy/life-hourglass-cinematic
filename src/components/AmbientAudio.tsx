@@ -7,6 +7,13 @@ export const AmbientAudio: React.FC = () => {
   const [userInteracted, setUserInteracted] = useState(false);
 
   useEffect(() => {
+    // Set volume programmatically
+    if (audioRef.current) {
+      audioRef.current.volume = 0.3;
+    }
+  }, []);
+
+  useEffect(() => {
     const handleUserInteraction = () => {
       setUserInteracted(true);
       document.removeEventListener('click', handleUserInteraction);
@@ -37,7 +44,6 @@ export const AmbientAudio: React.FC = () => {
       ref={audioRef}
       loop
       preload="auto"
-      volume={0.3}
       className="hidden"
     >
       <source src="/ambient-space.mp3" type="audio/mpeg" />
