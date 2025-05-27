@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { OrbitalDeathItem } from './OrbitalDeathItem';
 import { CentralCounter } from './CentralCounter';
@@ -200,13 +199,13 @@ export const OrbitalCinematicExperience: React.FC = () => {
     return Math.round(minSize + (maxSize - minSize) * normalizedValue);
   };
 
-  // Improved orbit radius calculation with larger spacing for bigger circles
+  // Improved orbit radius calculation with much closer spacing
   const getOrbitRadius = (index: number, size: number) => {
-    const baseRadius = 250; // Increased base radius
+    const baseRadius = 150; // Reduced from 250 to bring circles closer
     const itemsPerRing = 4; // Fewer items per ring for larger circles
     const ringIndex = Math.floor(index / itemsPerRing);
-    const sizeBuffer = Math.max(size, 80); // Larger buffer for bigger circles
-    return baseRadius + (ringIndex * (sizeBuffer + 80));
+    const sizeBuffer = Math.max(size, 60); // Buffer for larger circles
+    return baseRadius + (ringIndex * (sizeBuffer + 40)); // Reduced spacing from 80 to 40
   };
 
   // Even distribution of angles with better spacing
@@ -239,7 +238,7 @@ export const OrbitalCinematicExperience: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(239,68,68,0.06)_0%,transparent_50%)]"></div>
       </div>
 
-      {/* Smoother Constellation Grid Lines */}
+      {/* Smoother Constellation Grid Lines - adjusted for closer orbits */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(3)].map((_, i) => (
           <div
@@ -248,8 +247,8 @@ export const OrbitalCinematicExperience: React.FC = () => {
             style={{
               left: '50%',
               top: '50%',
-              width: `${500 + i * 200}px`, // Larger constellation rings
-              height: `${500 + i * 200}px`,
+              width: `${300 + i * 150}px`, // Reduced from 500 + i * 200 to bring grid closer
+              height: `${300 + i * 150}px`,
               transform: 'translate(-50%, -50%)',
               animation: `spin ${30 - i * 5}s linear infinite reverse`,
             }}
