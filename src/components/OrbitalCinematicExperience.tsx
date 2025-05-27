@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { OrbitalDeathItem } from './OrbitalDeathItem';
 import { CentralCounter } from './CentralCounter';
@@ -187,19 +188,41 @@ export const OrbitalCinematicExperience: React.FC = () => {
 
   const totalDeathsPerSecond = deathData.reduce((sum, data) => sum + data.deathsPerSecond, 0);
 
-  const getOrbitRadius = (index: number) => {
-    const baseRadius = 220;
-    const radiusIncrement = 80;
-    return baseRadius + (Math.floor(index / 4) * radiusIncrement);
+  // Calculate dynamic sizing based on death count
+  const getItemSize = (dailyDeaths: number) => {
+    const maxDeaths = Math.max(...deathData.map(d => d.dailyDeaths));
+    const minDeaths = Math.min(...deathData.map(d => d.dailyDeaths));
+    const maxSize = 140; // Maximum circle size
+    const minSize = 60;  // Minimum circle size
+    
+    // Logarithmic scaling for better visual distribution
+    const normalizedValue = Math.log(dailyDeaths) / Math.log(maxDeaths);
+    return minSize + (maxSize - minSize) * normalizedValue;
   };
 
+  // Dynamic orbit radius calculation to prevent overlap
+  const getOrbitRadius = (index: number, size: number) => {
+    const baseRadius = 280;
+    const sizeBuffer = size / 2 + 40; // Add buffer based on item size
+    const ringIndex = Math.floor(index / 6); // 6 items per ring max
+    return baseRadius + (ringIndex * (sizeBuffer + 100));
+  };
+
+  // More evenly distributed angles
   const getAngle = (index: number) => {
-    const itemsPerRing = 4;
+    const itemsPerRing = 6;
     const ringIndex = Math.floor(index / itemsPerRing);
     const positionInRing = index % itemsPerRing;
     const angleStep = 360 / itemsPerRing;
-    const ringOffset = ringIndex * 22.5;
+    const ringOffset = ringIndex * 30; // Offset each ring
     return (positionInRing * angleStep + ringOffset) % 360;
+  };
+
+  // Variable orbit speeds based on ring
+  const getOrbitSpeed = (index: number) => {
+    const baseSpeed = 1.2; // Faster base speed
+    const ringIndex = Math.floor(index / 6);
+    return baseSpeed - (ringIndex * 0.2); // Outer rings slightly slower
   };
 
   return (
@@ -215,21 +238,19 @@ export const OrbitalCinematicExperience: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(239,68,68,0.06)_0%,transparent_50%)]"></div>
       </div>
 
-      {/* Constellation Grid Lines - smooth rotation */}
+      {/* Dynamic Constellation Grid Lines */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="absolute border border-gray-800/20 rounded-full animate-spin"
+            className="absolute border border-gray-800/15 rounded-full"
             style={{
               left: '50%',
               top: '50%',
-              width: `${440 + i * 160}px`,
-              height: `${440 + i * 160}px`,
+              width: `${560 + i * 200}px`,
+              height: `${560 + i * 200}px`,
               transform: 'translate(-50%, -50%)',
-              animationDuration: `${35 + i * 10}s`,
-              animationDirection: 'reverse',
-              animationTimingFunction: 'linear'
+              animation: `spin ${20 - i * 2}s linear infinite reverse`,
             }}
           />
         ))}
@@ -241,28 +262,33 @@ export const OrbitalCinematicExperience: React.FC = () => {
         
         {phase === 'orbital' && (
           <>
-            {/* Central Counter */}
+            {/* Enhanced Central Counter */}
             <CentralCounter 
               totalDeathsPerSecond={totalDeathsPerSecond}
               globalTime={globalTime}
             />
 
-            {/* Orbital Death Items */}
-            {deathData.slice(0, visibleItems).map((data, index) => (
-              <OrbitalDeathItem
-                key={data.cause}
-                cause={data.cause}
-                dailyDeaths={data.dailyDeaths}
-                icon={data.icon}
-                color={data.color}
-                description={data.description}
-                deathsPerSecond={data.deathsPerSecond}
-                globalTime={globalTime}
-                orbitRadius={getOrbitRadius(index)}
-                angle={getAngle(index)}
-                animationDelay={index * 500}
-              />
-            ))}
+            {/* Dynamic Orbital Death Items */}
+            {deathData.slice(0, visibleItems).map((data, index) => {
+              const itemSize = getItemSize(data.dailyDeaths);
+              return (
+                <OrbitalDeathItem
+                  key={data.cause}
+                  cause={data.cause}
+                  dailyDeaths={data.dailyDeaths}
+                  icon={data.icon}
+                  color={data.color}
+                  description={data.description}
+                  deathsPerSecond={data.deathsPerSecond}
+                  globalTime={globalTime}
+                  orbitRadius={getOrbitRadius(index, itemSize)}
+                  angle={getAngle(index)}
+                  orbitSpeed={getOrbitSpeed(index)}
+                  itemSize={itemSize}
+                  animationDelay={index * 500}
+                />
+              );
+            })}
           </>
         )}
       </div>

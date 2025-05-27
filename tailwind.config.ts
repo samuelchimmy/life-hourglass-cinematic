@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -126,6 +127,22 @@ export default {
 					'50%': {
 						opacity: '0.6'
 					}
+				},
+				'slideHeartbeat': {
+					'0%, 100%': {
+						transform: 'translateX(-100%)'
+					},
+					'50%': {
+						transform: 'translateX(400%)'
+					}
+				},
+				'spin': {
+					'0%': {
+						transform: 'translate(-50%, -50%) rotate(0deg)'
+					},
+					'100%': {
+						transform: 'translate(-50%, -50%) rotate(360deg)'
+					}
 				}
 			},
 			animation: {
@@ -135,7 +152,9 @@ export default {
 				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
 				'shimmer': 'shimmer 2s linear infinite',
-				'fadeInOut': 'fadeInOut 6s ease-in-out infinite'
+				'fadeInOut': 'fadeInOut 6s ease-in-out infinite',
+				'slideHeartbeat': 'slideHeartbeat 2s ease-in-out infinite',
+				'spin': 'spin 1s linear infinite'
 			}
 		}
 	},
