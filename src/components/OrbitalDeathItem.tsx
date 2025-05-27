@@ -16,6 +16,73 @@ interface OrbitalDeathItemProps {
   animationDelay: number;
 }
 
+// Smart text fitting utilities
+const calculateOptimalFontSize = (text: string, maxWidth: number, maxHeight: number, baseSize: number) => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) return baseSize;
+  
+  let fontSize = baseSize;
+  const minFontSize = Math.max(8, baseSize * 0.5);
+  const maxFontSize = baseSize;
+  
+  while (fontSize >= minFontSize) {
+    context.font = `${fontSize}px Inter, sans-serif`;
+    const metrics = context.measureText(text);
+    const textWidth = metrics.width;
+    const textHeight = fontSize * 1.2; // Approximate line height
+    
+    if (textWidth <= maxWidth && textHeight <= maxHeight) {
+      return fontSize;
+    }
+    fontSize -= 0.5;
+  }
+  
+  return minFontSize;
+};
+
+const breakTextIntoLines = (text: string, maxWidth: number, fontSize: number) => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) return [text];
+  
+  context.font = `${fontSize}px Inter, sans-serif`;
+  
+  // If text fits in one line, return as is
+  if (context.measureText(text).width <= maxWidth) {
+    return [text];
+  }
+  
+  // Smart word breaking
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+  
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = context.measureText(testLine).width;
+    
+    if (testWidth <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        // Word is too long, break it
+        lines.push(word);
+      }
+    }
+  }
+  
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  
+  // Limit to 2 lines maximum
+  return lines.slice(0, 2);
+};
+
 export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
   cause,
   dailyDeaths,
@@ -36,6 +103,52 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const itemRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
+
+  // Calculate dynamic sizing and text properties
+  const padding = Math.max(10, itemSize * 0.08); // Dynamic padding: 8% of size, minimum 10px
+  const availableWidth = itemSize - (padding * 2);
+  const availableHeight = itemSize - (padding * 2);
+  
+  // Icon sizing
+  const iconSize = Math.max(16, Math.min(32, itemSize * 0.15));
+  
+  // Text sizing calculations
+  const baseCauseSize = Math.max(10, itemSize * 0.09);
+  const baseCounterSize = Math.max(9, itemSize * 0.08);
+  const baseRateSize = Math.max(7, itemSize * 0.06);
+  
+  // Smart text fitting
+  const causeLines = breakTextIntoLines(cause, availableWidth * 0.9, baseCauseSize);
+  const maxCauseLineWidth = Math.max(...causeLines.map(line => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    context.font = `${baseCauseSize}px Inter, sans-serif`;
+    return context.measureText(line).width;
+  }));
+  
+  const optimalCauseSize = calculateOptimalFontSize(
+    causeLines[0], 
+    availableWidth * 0.9, 
+    (availableHeight * 0.4) / causeLines.length, 
+    baseCauseSize
+  );
+  
+  const counterText = currentCount.toLocaleString();
+  const optimalCounterSize = calculateOptimalFontSize(
+    counterText, 
+    availableWidth * 0.9, 
+    availableHeight * 0.2, 
+    baseCounterSize
+  );
+  
+  const rateText = `+${deathsPerSecond.toFixed(3)}/s`;
+  const optimalRateSize = calculateOptimalFontSize(
+    rateText, 
+    availableWidth * 0.9, 
+    availableHeight * 0.15, 
+    baseRateSize
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,16 +174,13 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
     const animate = (currentTime: number) => {
       if (startTime === null) startTime = currentTime;
       
-      // Smooth continuous rotation with cubic-bezier easing
-      const elapsed = (currentTime - startTime) / 1000; // Convert to seconds
-      const currentAngle = (angle + elapsed * orbitSpeed * 10) * Math.PI / 180; // Faster rotation
+      const elapsed = (currentTime - startTime) / 1000;
+      const currentAngle = (angle + elapsed * orbitSpeed * 10) * Math.PI / 180;
       
-      // Slight depth variance for natural drift
       const depthVariance = Math.sin(elapsed * 0.3 + angle * 0.01) * 0.03;
       const x = Math.cos(currentAngle) * orbitRadius * (1 + depthVariance);
       const y = Math.sin(currentAngle) * orbitRadius * (1 + depthVariance);
       
-      // Subtle floating effect
       const floatOffset = Math.sin(elapsed * 1.2 + angle * 0.1) * 2;
       
       if (itemRef.current && !isHovered) {
@@ -92,7 +202,6 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
 
   if (!hasEntered) return null;
 
-  // Stable hover handlers to prevent flickering
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -103,10 +212,9 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 150); // Slightly longer delay to prevent flickering
+    }, 150);
   };
 
-  // Color mapping for borders and glows
   const getBorderColor = () => {
     if (color.includes('red')) return '#ef4444';
     if (color.includes('purple')) return '#8b5cf6';
@@ -137,7 +245,7 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Dynamic glow effect with pulse */}
+      {/* Dynamic glow effect */}
       <div 
         className="absolute inset-0 rounded-full blur-lg animate-pulse"
         style={{
@@ -148,7 +256,7 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
         }}
       ></div>
       
-      {/* Main Circle */}
+      {/* Main Circle with smart content layout */}
       <div 
         className="relative rounded-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 border-2 backdrop-blur-md shadow-2xl flex flex-col items-center justify-center text-center transition-all duration-500"
         style={{
@@ -156,50 +264,60 @@ export const OrbitalDeathItem: React.FC<OrbitalDeathItemProps> = ({
           height: `${itemSize}px`,
           borderColor: borderColor,
           boxShadow: `0 0 ${isHovered ? 35 : 20}px ${borderColor}70`,
+          padding: `${padding}px`,
         }}
       >
-        {/* Content */}
-        <div className="relative z-10 p-2">
-          {/* Icon */}
+        {/* Smart content layout with measured spacing */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
+          {/* Icon with dynamic sizing */}
           <div 
-            className="mb-1"
-            style={{ fontSize: `${Math.max(14, itemSize * 0.12)}px` }}
+            className="flex-shrink-0 mb-1"
+            style={{ 
+              fontSize: `${iconSize}px`,
+              lineHeight: 1,
+            }}
           >
             {icon}
           </div>
           
-          {/* Cause Name */}
+          {/* Cause name with smart line breaking */}
           <div 
-            className="font-semibold text-white mb-1 leading-tight"
+            className="font-semibold text-white text-center leading-tight flex-grow flex flex-col justify-center mb-1"
             style={{ 
-              fontSize: `${Math.max(10, itemSize * 0.07)}px`,
-              maxWidth: `${itemSize - 15}px`
+              fontSize: `${optimalCauseSize}px`,
+              lineHeight: 1.1,
             }}
           >
-            {cause.length > (itemSize > 120 ? 25 : 15) ? 
-              `${cause.substring(0, itemSize > 120 ? 22 : 12)}...` : 
-              cause}
+            {causeLines.map((line, index) => (
+              <div key={index}>{line}</div>
+            ))}
           </div>
           
-          {/* Real-time Counter */}
+          {/* Real-time Counter with optimal sizing */}
           <div 
-            className="font-mono font-bold text-white"
-            style={{ fontSize: `${Math.max(12, itemSize * 0.08)}px` }}
+            className="font-mono font-bold text-white flex-shrink-0 mb-1"
+            style={{ 
+              fontSize: `${optimalCounterSize}px`,
+              lineHeight: 1,
+            }}
           >
-            {currentCount.toLocaleString()}
+            {counterText}
           </div>
           
-          {/* Rate indicator */}
+          {/* Rate indicator with optimal sizing */}
           <div 
-            className="text-gray-400 mt-1"
-            style={{ fontSize: `${Math.max(8, itemSize * 0.05)}px` }}
+            className="text-gray-400 flex-shrink-0"
+            style={{ 
+              fontSize: `${optimalRateSize}px`,
+              lineHeight: 1,
+            }}
           >
-            +{deathsPerSecond.toFixed(3)}/s
+            {rateText}
           </div>
         </div>
       </div>
 
-      {/* Enhanced Hover Information with smooth fade */}
+      {/* Enhanced Hover Information */}
       {isHovered && (
         <div 
           className="absolute top-full left-1/2 transform -translate-x-1/2 mt-6 bg-black/95 backdrop-blur-md rounded-xl p-5 min-w-64 z-50 border border-gray-700/50 pointer-events-none"
