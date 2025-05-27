@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { OrbitalDeathItem } from './OrbitalDeathItem';
 import { CentralCounter } from './CentralCounter';
@@ -187,30 +188,30 @@ export const OrbitalCinematicExperience: React.FC = () => {
 
   const totalDeathsPerSecond = deathData.reduce((sum, data) => sum + data.deathsPerSecond, 0);
 
-  // Enhanced dynamic sizing with proper scaling
+  // Enhanced dynamic sizing with larger scale (60px to 180px)
   const getItemSize = (dailyDeaths: number) => {
     const maxDeaths = Math.max(...deathData.map(d => d.dailyDeaths));
     const minDeaths = Math.min(...deathData.map(d => d.dailyDeaths));
-    const maxSize = 100; // Maximum circle size
-    const minSize = 25;  // Minimum circle size
+    const maxSize = 180; // Increased from 100px
+    const minSize = 60;  // Increased from 25px
     
     // Linear scaling for better visual proportion
     const normalizedValue = (dailyDeaths - minDeaths) / (maxDeaths - minDeaths);
     return Math.round(minSize + (maxSize - minSize) * normalizedValue);
   };
 
-  // Improved orbit radius calculation to prevent overlap
+  // Improved orbit radius calculation with larger spacing for bigger circles
   const getOrbitRadius = (index: number, size: number) => {
-    const baseRadius = 200;
-    const itemsPerRing = 5; // Fewer items per ring for better spacing
+    const baseRadius = 250; // Increased base radius
+    const itemsPerRing = 4; // Fewer items per ring for larger circles
     const ringIndex = Math.floor(index / itemsPerRing);
-    const sizeBuffer = Math.max(size, 60); // Minimum buffer
-    return baseRadius + (ringIndex * (sizeBuffer + 60));
+    const sizeBuffer = Math.max(size, 80); // Larger buffer for bigger circles
+    return baseRadius + (ringIndex * (sizeBuffer + 80));
   };
 
-  // Even distribution of angles
+  // Even distribution of angles with better spacing
   const getAngle = (index: number) => {
-    const itemsPerRing = 5;
+    const itemsPerRing = 4;
     const ringIndex = Math.floor(index / itemsPerRing);
     const positionInRing = index % itemsPerRing;
     const angleStep = 360 / itemsPerRing;
@@ -220,9 +221,9 @@ export const OrbitalCinematicExperience: React.FC = () => {
 
   // Faster, more fluid orbit speeds
   const getOrbitSpeed = (index: number) => {
-    const baseSpeed = 2.5; // Much faster base speed
-    const ringIndex = Math.floor(index / 5);
-    return baseSpeed - (ringIndex * 0.3); // Outer rings slightly slower
+    const baseSpeed = 3.5; // Increased speed for more fluid motion
+    const ringIndex = Math.floor(index / 4);
+    return baseSpeed - (ringIndex * 0.4); // Outer rings slightly slower
   };
 
   return (
@@ -247,8 +248,8 @@ export const OrbitalCinematicExperience: React.FC = () => {
             style={{
               left: '50%',
               top: '50%',
-              width: `${400 + i * 150}px`,
-              height: `${400 + i * 150}px`,
+              width: `${500 + i * 200}px`, // Larger constellation rings
+              height: `${500 + i * 200}px`,
               transform: 'translate(-50%, -50%)',
               animation: `spin ${30 - i * 5}s linear infinite reverse`,
             }}
@@ -262,7 +263,7 @@ export const OrbitalCinematicExperience: React.FC = () => {
         
         {phase === 'orbital' && (
           <>
-            {/* Harmonized Central Counter */}
+            {/* Harmonized Central Counter - modest size */}
             <CentralCounter 
               totalDeathsPerSecond={totalDeathsPerSecond}
               globalTime={globalTime}
